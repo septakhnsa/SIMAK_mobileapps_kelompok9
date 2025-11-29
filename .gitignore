@@ -43,3 +43,18 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+#tambahan git projek kelompok 9
+# Flutter Generated Files
+flutter_export_environment.sh
+
+# Android
+/android/.gradle/
+/android/local.properties
+
+# iOS
+**/Pods/
+**/Podfile.lock
+
+# VSCode
+.vscode/

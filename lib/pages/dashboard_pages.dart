@@ -8,6 +8,8 @@ import '../pages/input_krs_page.dart';
 import '../pages/feedback_pages.dart';
 import '../pages/notifikasi_page.dart';
 import '../pages/surat_kotak_masuk_page.dart';
+import '../pages/tugas_list_page.dart'; 
+import 'tugas_detail_page.dart';
 
 class DashboardPages extends StatefulWidget {
   const DashboardPages({super.key});
@@ -19,6 +21,8 @@ class DashboardPages extends StatefulWidget {
 class _DashboardPagesState extends State<DashboardPages> {
   Map<String, dynamic>? user;
   int _selectedIndexNavbar = 1;
+  String _hoveredCard = "";
+  int _jadwalIndex = 0;
 
   final List<Map<String, dynamic>> menuItems = [
     {"icon": Icons.article_outlined, "label": "e-sertifikat"},
@@ -33,6 +37,37 @@ class _DashboardPagesState extends State<DashboardPages> {
     {"icon": Icons.replay_circle_filled_outlined, "label": "Remidi"},
     {"icon": Icons.fact_check_outlined, "label": "Ujian"},
     {"icon": Icons.check_circle_outline, "label": "Absensi"},
+  ];
+
+  final List<Map<String, dynamic>> jadwalDummy = [
+    {
+      "tanggal": "Senin, 1 Sept 2025",
+      "matkul": [
+        {"nama": "Mobile Programming", "jam": "08.00 - 10.30"},
+        {"nama": "Data Mining", "jam": "13.00 - 15.00"},
+      ]
+    },
+    {
+      "tanggal": "Selasa, 2 Sept 2025",
+      "matkul": [
+        {"nama": "Sistem Basis Data", "jam": "09.00 - 11.00"},
+        {"nama": "Kecerdasan Buatan", "jam": "14.00 - 16.00"},
+      ]
+    },
+    {
+      "tanggal": "Rabu, 3 Sept 2025",
+      "matkul": [
+        {"nama": "Pemrograman Web", "jam": "08.00 - 10.00"},
+        {"nama": "Mobile Programming", "jam": "10.30 - 12.00"},
+      ]
+    },
+    {
+      "tanggal": "Kamis, 4 Sept 2025",
+      "matkul": [
+        {"nama": "Data Mining", "jam": "09.00 - 11.00"},
+        {"nama": "Sistem Basis Data", "jam": "13.00 - 15.00"},
+      ]
+    },
   ];
 
   @override
@@ -72,28 +107,22 @@ class _DashboardPagesState extends State<DashboardPages> {
           context,
           MaterialPageRoute(
               builder: (context) => const DaftarMatakuliahPage()));
-
     } else if (normalized.contains("krs")) {
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => const InputKrsPage()));
-
     } else if (normalized.contains("profil")) {
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => const ProfilePages()));
-
     } else if (normalized.contains("surat")) {
       Navigator.push(context,
           MaterialPageRoute(builder: (context) => const SuratKotakMasukPage()));
-
     } else if (normalized.contains("notifikasi")) {
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => const NotifikasiPage()));
-
     } else if (normalized.contains("umpan balik") ||
         normalized.contains("feedback")) {
       Navigator.push(context,
           MaterialPageRoute(builder: (context) => const FeedbackPages()));
-
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -111,7 +140,6 @@ class _DashboardPagesState extends State<DashboardPages> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFFDF7EE),
-
       appBar: AppBar(
         backgroundColor: const Color(0xFF4C7F9A),
         centerTitle: true,
@@ -122,18 +150,15 @@ class _DashboardPagesState extends State<DashboardPages> {
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.white), // putih
           onPressed: () => Navigator.pop(context),
         ),
       ),
-
       body: user == null
-          ? const Center(
-              child: CircularProgressIndicator(color: Color(0xFF4C7F9A)))
+          ? const Center(child: CircularProgressIndicator(color: Color(0xFF4C7F9A)))
           : SafeArea(
               child: SingleChildScrollView(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -144,8 +169,7 @@ class _DashboardPagesState extends State<DashboardPages> {
                           radius: 32,
                           backgroundImage: hasFoto
                               ? NetworkImage(user!["foto"])
-                              : const AssetImage("assets/images/default_user.png")
-                                  as ImageProvider,
+                              : const AssetImage("assets/images/default_user.png") as ImageProvider,
                         ),
                         const SizedBox(width: 14),
                         Expanded(
@@ -175,8 +199,7 @@ class _DashboardPagesState extends State<DashboardPages> {
                                   builder: (context) => const NotifikasiPage()),
                             );
                           },
-                          icon: const Icon(Icons.notifications_none_rounded,
-                              color: Color(0xFF4C7F9A)),
+                          icon: const Icon(Icons.notifications_none_rounded, color: Color(0xFF4C7F9A)),
                         ),
                       ],
                     ),
@@ -199,7 +222,7 @@ class _DashboardPagesState extends State<DashboardPages> {
 
                     const SizedBox(height: 20),
 
-                    // JADWAL CARD
+                    // JADWAL CARD INTERAKTIF
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
@@ -221,10 +244,35 @@ class _DashboardPagesState extends State<DashboardPages> {
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16)),
                           const SizedBox(height: 6),
-                          Text("Rabu, 1 Sept 2025",
-                              style: TextStyle(
-                                  color: Colors.white.withOpacity(0.9),
-                                  fontSize: 13)),
+
+                          // Tanggal dan tombol < >
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              IconButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      if (_jadwalIndex > 0) _jadwalIndex--;
+                                    });
+                                  },
+                                  icon: const Icon(Icons.arrow_left, color: Colors.white)),
+                              Text(
+                                jadwalDummy[_jadwalIndex]["tanggal"],
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14),
+                              ),
+                              IconButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      if (_jadwalIndex < jadwalDummy.length - 1)
+                                        _jadwalIndex++;
+                                    });
+                                  },
+                                  icon: const Icon(Icons.arrow_right, color: Colors.white)),
+                            ],
+                          ),
                           const SizedBox(height: 12),
                           Container(
                             decoration: BoxDecoration(
@@ -232,19 +280,22 @@ class _DashboardPagesState extends State<DashboardPages> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                             padding: const EdgeInsets.all(12),
-                            child: const Column(
+                            child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text("Mobile Programming",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold)),
-                                Text("08.00 - 10.30"),
-                                Divider(),
-                                Text("Data Mining",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold)),
-                                Text("14.00 - 16.10"),
-                              ],
+                              children: List.generate(
+                                jadwalDummy[_jadwalIndex]["matkul"].length,
+                                (i) {
+                                  final m = jadwalDummy[_jadwalIndex]["matkul"][i];
+                                  return Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(m["nama"], style: const TextStyle(fontWeight: FontWeight.bold)),
+                                      Text(m["jam"]),
+                                      if (i != jadwalDummy[_jadwalIndex]["matkul"].length - 1) const Divider(),
+                                    ],
+                                  );
+                                },
+                              ),
                             ),
                           ),
                         ],
@@ -253,10 +304,11 @@ class _DashboardPagesState extends State<DashboardPages> {
 
                     const SizedBox(height: 25),
 
+                    // TUGASKU HEADER
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: const [
-                        Text(
+                      children: [
+                        const Text(
                           "Tugasku",
                           style: TextStyle(
                             fontSize: 16,
@@ -264,12 +316,21 @@ class _DashboardPagesState extends State<DashboardPages> {
                             color: Color(0xFF4C7F9A),
                           ),
                         ),
-                        Text(
-                          "Lihat Semua",
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Color(0xFF4C7F9A),
-                            fontWeight: FontWeight.w500,
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const TugasListPage()),
+                            );
+                          },
+                          child: const Text(
+                            "Lihat Semua",
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Color(0xFF4C7F9A),
+                              fontWeight: FontWeight.w500,
+                              decoration: TextDecoration.underline,
+                            ),
                           ),
                         ),
                       ],
@@ -318,8 +379,7 @@ class _DashboardPagesState extends State<DashboardPages> {
                                 padding: const EdgeInsets.all(14),
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color:
-                                      colorOptions[index % colorOptions.length],
+                                  color: colorOptions[index % colorOptions.length],
                                   boxShadow: [
                                     BoxShadow(
                                       color: Colors.black.withOpacity(0.05),
@@ -328,8 +388,7 @@ class _DashboardPagesState extends State<DashboardPages> {
                                     )
                                   ],
                                 ),
-                                child: Icon(item["icon"],
-                                    color: const Color(0xFF3E657A), size: 26),
+                                child: Icon(item["icon"], color: const Color(0xFF3E657A), size: 26),
                               ),
                               const SizedBox(height: 6),
                               Text(item["label"],
@@ -343,7 +402,7 @@ class _DashboardPagesState extends State<DashboardPages> {
                       }),
                     ),
 
-                    const SizedBox(height: 20), // FIX DI SINI (dari 80 ke 20)
+                    const SizedBox(height: 20),
                   ],
                 ),
               ),
@@ -353,9 +412,6 @@ class _DashboardPagesState extends State<DashboardPages> {
     );
   }
 
-  // —————————————————————————————
-  // COMPONENT: CARD TUGAS
-  //—————————————————————————————
   Widget _tugasCard(String matkul, String judul, String deadline) {
     return Container(
       padding: const EdgeInsets.all(14),
@@ -377,33 +433,24 @@ class _DashboardPagesState extends State<DashboardPages> {
               color: const Color(0xFF4C7F9A).withOpacity(0.15),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(Icons.description_outlined,
-                color: Color(0xFF4C7F9A)),
+            child: const Icon(Icons.description_outlined, color: Color(0xFF4C7F9A)),
           ),
           const SizedBox(width: 14),
-
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(judul,
-                    style: const TextStyle(
-                        fontSize: 14, fontWeight: FontWeight.bold)),
+                Text(judul, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 2),
-                Text(matkul,
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade700)),
+                Text(matkul, style: TextStyle(fontSize: 12, color: Colors.grey.shade700)),
               ],
             ),
           ),
-
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              const Icon(Icons.calendar_today_rounded,
-                  size: 16, color: Color(0xFF4C7F9A)),
-              Text(deadline,
-                  style:
-                      const TextStyle(fontSize: 11, color: Color(0xFF4C7F9A))),
+              const Icon(Icons.calendar_today_rounded, size: 16, color: Color(0xFF4C7F9A)),
+              Text(deadline, style: const TextStyle(fontSize: 11, color: Color(0xFF4C7F9A))),
             ],
           ),
         ],
@@ -411,9 +458,6 @@ class _DashboardPagesState extends State<DashboardPages> {
     );
   }
 
-  // —————————————————————————————
-  // NAVBAR
-  // —————————————————————————————
   Widget _bottomNavbar() {
     return Stack(
       clipBehavior: Clip.none,
@@ -434,24 +478,19 @@ class _DashboardPagesState extends State<DashboardPages> {
                   Navigator.push(context,
                       MaterialPageRoute(builder: (context) => const SuratKotakMasukPage()));
                 },
-                child: const Icon(Icons.mark_chat_unread_rounded,
-                    size: 26, color: Colors.white70),
+                child: const Icon(Icons.mark_chat_unread_rounded, size: 26, color: Colors.white70),
               ),
-
               const SizedBox(width: 60),
-
               GestureDetector(
                 onTap: () {
                   Navigator.push(context,
                       MaterialPageRoute(builder: (context) => const ProfilePages()));
                 },
-                child: const Icon(Icons.person_rounded,
-                    size: 26, color: Colors.white70),
+                child: const Icon(Icons.person_rounded, size: 26, color: Colors.white70),
               ),
             ],
           ),
         ),
-
         Positioned(
           top: -25,
           child: Container(
@@ -467,8 +506,7 @@ class _DashboardPagesState extends State<DashboardPages> {
                     offset: const Offset(0, 3))
               ],
             ),
-            child: const Icon(Icons.home_rounded,
-                size: 32, color: Color(0xFF4C7F9A)),
+            child: const Icon(Icons.home_rounded, size: 32, color: Color(0xFF4C7F9A)),
           ),
         )
       ],

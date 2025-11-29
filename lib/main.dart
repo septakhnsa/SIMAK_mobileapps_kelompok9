@@ -4,8 +4,8 @@ import 'package:siakad/pages/welcome_page.dart';
 import 'package:siakad/pages/login_pages.dart';
 import 'package:siakad/pages/register_pages.dart';
 import 'package:siakad/widgets/bottom_nav.dart'; // halaman utama (navbar + dashboard)
-// ignore: avoid_web_libraries_in_flutter
-// ignore: avoid_web_libraries_in_flutter
+import 'pages/tugas_list_page.dart';
+import 'pages/tugas_detail_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -31,13 +31,25 @@ class MyApp extends StatelessWidget {
         '/welcome': (context) => const WelcomePage(),
         '/login': (context) => const LoginPages(),
         '/register': (context) => const RegisterPages(),
-        '/main': (context) => const BottomNav(), // berisi dashboard + navbar
+        '/main': (context) => const BottomNav(),
+        '/tugas_list': (context) => const TugasListPage(),
+
+        // ⚠️ Detail tugas butuh parameter via arguments
+        '/tugas_detail': (context) {
+          final args =
+              ModalRoute.of(context)!.settings.arguments as Map<String, String>;
+          return TugasDetailPage(
+            matkul: args["matkul"] ?? "",
+            judul: args["judul"] ?? "",
+            deadline: args["deadline"] ?? "",
+          );
+        },
       },
 
-      // 🔹 Ini halaman pertama yang muncul saat app dibuka
+      // 🔹 Halaman pertama saat app dibuka
       home: const SplashScreen(),
 
-      // 🔹 Buat layout responsif tengah (biar UI nggak melebar di tablet/desktop)
+      // 🔹 Layout responsif tengah
       builder: (context, child) {
         return Center(
           child: ConstrainedBox(

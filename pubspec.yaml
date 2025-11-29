@@ -49,6 +49,7 @@ dependencies:
   pdf: ^3.10.8
   printing: ^5.13.2
   path_provider: ^2.1.2
+  file_picker: ^6.1.1 
 
 
 dev_dependencies:

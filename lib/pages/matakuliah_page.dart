@@ -65,18 +65,19 @@ class _DaftarMatakuliahPageState extends State<DaftarMatakuliahPage> {
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
-        elevation: 0,
-        backgroundColor: primaryColor,
-        title: const Text(
-          'Daftar Mata Kuliah Yang dipilih',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-            letterSpacing: 0.5,
-          ),
-        ),
-        centerTitle: true,
-      ),
+  elevation: 0,
+  backgroundColor: primaryColor,
+  iconTheme: const IconThemeData(color: Colors.white), // ← panah back jadi putih
+  title: const Text(
+    'Daftar Mata Kuliah Dipilih',
+    style: TextStyle(
+      fontWeight: FontWeight.bold,
+      color: Colors.white, // title putih
+      letterSpacing: 0.5,
+    ),
+  ),
+  centerTitle: true,
+),
       body: isLoading
           ? Center(
               child: CircularProgressIndicator(

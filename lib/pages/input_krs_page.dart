@@ -146,6 +146,10 @@ class _InputKrsPageState extends State<InputKrsPage> {
       appBar: AppBar(
         elevation: 0,
         backgroundColor: primaryColor,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white), // ikon back putih
+          onPressed: () => Navigator.pop(context),
+        ),
         title: const Text(
           "Input KRS",
           style: TextStyle(
@@ -240,7 +244,7 @@ class _InputKrsPageState extends State<InputKrsPage> {
                                 strokeWidth: 2,
                               ),
                             )
-                          : const Icon(Icons.save),
+                          : const Icon(Icons.save, color: Colors.white), // ikon save putih
                       label: Text(
                         isLoading ? "Menyimpan..." : "Simpan KRS",
                         style: const TextStyle(
